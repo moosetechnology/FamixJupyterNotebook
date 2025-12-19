@@ -31,6 +31,13 @@ FamixNotebookEntity class >> metamodel [
 ]
 
 { #category : 'testing' }
+FamixNotebookEntity >> isComment [
+
+	<generated>
+	^ false
+]
+
+{ #category : 'testing' }
 FamixNotebookEntity >> isNamedEntity [
 
 	<generated>

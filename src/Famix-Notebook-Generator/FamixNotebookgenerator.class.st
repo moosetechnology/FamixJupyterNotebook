@@ -1,5 +1,10 @@
+"
+To generate the entities : `FamixNotebookGenerator generate`
+
+See : https://modularmoose.org/developers/create-new-metamodel/
+"
 Class {
-	#name : 'FamixNotebookgenerator',
+	#name : 'FamixNotebookGenerator',
 	#superclass : 'FamixBasicInfrastructureGenerator',
 	#instVars : [
 		'notebook',
@@ -15,29 +20,28 @@ Class {
 }
 
 { #category : 'accessing' }
-FamixNotebookgenerator class >> packageName [
+FamixNotebookGenerator class >> packageName [
 
 	^ #'Famix-Notebook-Entities'
 ]
 
 { #category : 'accessing' }
-FamixNotebookgenerator class >> prefix [
+FamixNotebookGenerator class >> prefix [
 
 	^ #FamixNotebook
 ]
 
 { #category : 'accessing' }
-FamixNotebookgenerator class >> submetamodels [
+FamixNotebookGenerator class >> submetamodels [
 
 	^ { FamixPythonGenerator }
 ]
 
 { #category : 'definition' }
-FamixNotebookgenerator >> defineClasses [
+FamixNotebookGenerator >> defineClasses [
 
 	super defineClasses.
 
-	"notebook := builder newClassNamed: #Notebook."
 	cell := builder newAbstractClassNamed: #Cell.
 	textCell := builder newClassNamed: #TextCell.
 	codeCell := builder newClassNamed: #CodeCell.
@@ -45,31 +49,25 @@ FamixNotebookgenerator >> defineClasses [
 
 	"remote"
 	pythonEntity := self remoteEntity: #Entity withPrefix: #FamixPython.
-	"pythonModel := self remoteEntity: #Entity withPrefix: #FamixPython"
 ]
 
 { #category : 'definition' }
-FamixNotebookgenerator >> defineHierarchy [
+FamixNotebookGenerator >> defineHierarchy [
 
 	super defineHierarchy.
 
-	"notebook --|> namedEntity. "
-
 	codeCell --|> cell.
 	codeCell --|> #TSourceEntity.
-	"codeCell --|> sourcedEntity." "Code precedent ne casse pas mais le model semble ne pas etre bon => pas d'heritage multiple" 
 	
 	textCell --|> cell.
 	textCell --|> #TSourceEntity.
-	"Devrait probablement utiliser TSourceEntity egalement"
+
 ]
 
 { #category : 'definition' }
-FamixNotebookgenerator >> defineProperties [
+FamixNotebookGenerator >> defineProperties [
 
 	super defineProperties.
-	
-	"notebook property: #metadata type: #Object."
 	
 	cell property: #id type: #String.
 	cell property: #metadata type: #Object.
@@ -83,20 +81,17 @@ FamixNotebookgenerator >> defineProperties [
 	output property: #metadata type: #Object.
 	output property: #data type: #Object.
 	output property: #output_type type: #String.
-	self flag: #todo. " output_type should probably moved in an entity"
-	"We also have another execution count in output should check what it is"
+	"We have another execution count in output should check what it is"
 	
 	
 ]
 
 { #category : 'definition' }
-FamixNotebookgenerator >> defineRelations [
+FamixNotebookGenerator >> defineRelations [
 
 	super defineRelations.
 	
-	"notebook <>-* cell.
-	notebook - pythonModel. "
-	
 	codeCell -* pythonEntity.
 	codeCell - output. 
+	"Apparently some output are a list of entitties, should take a look"
 ]
