@@ -3,14 +3,14 @@
 
 file := '/Users/mignard/Documents/work/mooseDemo/pythonvarusage/Split_with_train_override.ipynb' asFileReference.
 
-nbJsonReader := NotebookJsonReader new.
+nbJsonReader := FamixNotebookImporter new.
 nbJsonReader readFrom: file.
 
 ""To get the build python model :""
 nbJsonReader pythonModel 
 "
 Class {
-	#name : 'NotebookJsonReader',
+	#name : 'FamixNotebookImporter',
 	#superclass : 'Object',
 	#instVars : [
 		'model',
@@ -26,7 +26,7 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-NotebookJsonReader >> allModelEntitiesFrom: startPos to: endPos [
+FamixNotebookImporter >> allModelEntitiesFrom: startPos to: endPos [
 
 	| sA entities |
 	sA := pythonModel allWithType: FamixPythonIndexedFileAnchor.
@@ -36,7 +36,7 @@ NotebookJsonReader >> allModelEntitiesFrom: startPos to: endPos [
 ]
 
 { #category : 'as yet unclassified' }
-NotebookJsonReader >> createCodeCell: cell [
+FamixNotebookImporter >> createCodeCell: cell [
 
 	| famixNBCell outputs startPos endPos entities sourceAnchor |
 	famixNBCell := FamixNotebookCodeCell new
@@ -65,7 +65,7 @@ NotebookJsonReader >> createCodeCell: cell [
 ]
 
 { #category : 'as yet unclassified' }
-NotebookJsonReader >> createMarkdownCell: cell [ 
+FamixNotebookImporter >> createMarkdownCell: cell [ 
 
 	| famixNBCell sourceAnchor |
 	famixNBCell := FamixNotebookTextCell new
@@ -82,7 +82,7 @@ NotebookJsonReader >> createMarkdownCell: cell [
 ]
 
 { #category : 'as yet unclassified' }
-NotebookJsonReader >> createOutput: anOutput [ 
+FamixNotebookImporter >> createOutput: anOutput [ 
 
 	| famixNBOutput |
 	famixNBOutput := FamixNotebookOutput new
@@ -95,7 +95,7 @@ NotebookJsonReader >> createOutput: anOutput [
 ]
 
 { #category : 'as yet unclassified' }
-NotebookJsonReader >> createPythonEntities: sourceAnchor [ 
+FamixNotebookImporter >> createPythonEntities: sourceAnchor [ 
 
 	| source  localfileReference pythonEntites |
 	source := sourceAnchor sourceText. 
@@ -116,7 +116,7 @@ NotebookJsonReader >> createPythonEntities: sourceAnchor [
 ]
 
 { #category : 'as yet unclassified' }
-NotebookJsonReader >> createSourceAnchor: aSource [
+FamixNotebookImporter >> createSourceAnchor: aSource [
 	"Sould refacto this to merge logic from writeCodeCells and this"
 
 	| sourceText sourceAnchor |
@@ -134,7 +134,7 @@ NotebookJsonReader >> createSourceAnchor: aSource [
 ]
 
 { #category : 'as yet unclassified' }
-NotebookJsonReader >> currentCellStartPos [
+FamixNotebookImporter >> currentCellStartPos [
 
 	| current_comment startPos |
 	"Smacc renvoi les comment avec un cr, c'est pourquoi pas de = directement"
@@ -147,25 +147,25 @@ NotebookJsonReader >> currentCellStartPos [
 ]
 
 { #category : 'initialization' }
-NotebookJsonReader >> initialize [ 
+FamixNotebookImporter >> initialize [ 
 
 	current_cell := 0
 ]
 
 { #category : 'accessing' }
-NotebookJsonReader >> model [
+FamixNotebookImporter >> model [
 
 	^ model
 ]
 
 { #category : 'accessing' }
-NotebookJsonReader >> model: anObject [
+FamixNotebookImporter >> model: anObject [
 
 	model := anObject
 ]
 
 { #category : 'as yet unclassified' }
-NotebookJsonReader >> nextCellStartPos [
+FamixNotebookImporter >> nextCellStartPos [
 
 	| current_comment startPos |
 	"Smacc renvoi les comment avec un cr, c'est pourquoi pas de = directement"
@@ -180,7 +180,7 @@ NotebookJsonReader >> nextCellStartPos [
 ]
 
 { #category : 'parsing' }
-NotebookJsonReader >> parseFromcell: cell [ 
+FamixNotebookImporter >> parseFromcell: cell [ 
 
 	(cell at: 'cell_type') = 'code'
 		ifTrue: [ self createCodeCell: cell ]
@@ -188,19 +188,19 @@ NotebookJsonReader >> parseFromcell: cell [
 ]
 
 { #category : 'accessing' }
-NotebookJsonReader >> pythonModel [
+FamixNotebookImporter >> pythonModel [
 
 	^ pythonModel
 ]
 
 { #category : 'accessing' }
-NotebookJsonReader >> pythonModel: anObject [
+FamixNotebookImporter >> pythonModel: anObject [
 
 	pythonModel := anObject
 ]
 
 { #category : 'meta-object-protocol' }
-NotebookJsonReader >> read: json [
+FamixNotebookImporter >> read: json [
 	"Loads parsed json"
 
 	| nbformat nbminor |
@@ -227,7 +227,7 @@ NotebookJsonReader >> read: json [
 ]
 
 { #category : 'instance creation' }
-NotebookJsonReader >> readFrom: aFileReference [ 
+FamixNotebookImporter >> readFrom: aFileReference [ 
 	| reader |
 
 	filename := aFileReference basename. 
@@ -236,11 +236,10 @@ NotebookJsonReader >> readFrom: aFileReference [
 	reader close.
 
 	^ model
-	"^ self createDataFrame"
 ]
 
 { #category : 'writing' }
-NotebookJsonReader >> writeCodeCells: fileReference [
+FamixNotebookImporter >> writeCodeCells: fileReference [
 	"From code cells, this will add all the sources in fileReference with comments separators"
 
 	| i |
@@ -258,54 +257,6 @@ NotebookJsonReader >> writeCodeCells: fileReference [
 					ifTrue: [ stream nextPutAll: (cell at: 'source') ]
 					ifFalse: [
 					(cell at: 'source') do: [ :line | stream nextPutAll: line ] ].
-				i := i + 1.
-				stream cr ] ] ]
-]
-
-{ #category : 'writing' }
-NotebookJsonReader >> writeCodeCellsAsLinesTo: fileReference [
-	"From code cells, this will add all the sources in fileReference with comments separators"
-
-	| i |
-	self
-		deprecated: 'Use writeCodeCells: instead of current one'
-		on: '16 April 2025'
-		in:
-		'Pharo-12.0.0+SNAPSHOT.build.1570.sha.3dafb8a476dfe88afa5aa6bf7b148beb9c11003f (64 Bit)'.
-	i := 0.
-	fileReference writeStreamDo: [ :stream |
-		cells do: [ :cell |
-			(cell at: 'cell_type') = 'code' ifTrue: [
-				stream
-					nextPutAll: '#cell-' , i asString;
-					cr.
-
-				(cell at: 'source') class = ByteString
-					ifTrue: [ stream nextPutAll: (cell at: 'source') ]
-					ifFalse: [
-					(cell at: 'source') do: [ :line | stream nextPutAll: line ] ].
-				i := i + 1.
-				stream cr ] ] ]
-]
-
-{ #category : 'writing' }
-NotebookJsonReader >> writeCodeCellsAsSingleStringTo: fileReference [
-	"From code cells, this will add all the sources in fileReference with comments separators (works on old versions of notebooks where the source code was stored as a single string in each cells)"
-
-	| i |
-	self
-		deprecated: 'Use writeCodeCells: instead of current one'
-		on: '16 April 2025'
-		in:
-		'Pharo-12.0.0+SNAPSHOT.build.1570.sha.3dafb8a476dfe88afa5aa6bf7b148beb9c11003f (64 Bit)'.
-	i := 0.
-	fileReference writeStreamDo: [ :stream |
-		cells do: [ :cell |
-			(cell at: 'cell_type') = 'code' ifTrue: [
-				stream
-					nextPutAll: '#cell-' , i asString;
-					cr.
-				stream nextPutAll: (cell at: 'source').
 				i := i + 1.
 				stream cr ] ] ]
 ]
